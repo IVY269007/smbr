@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#080b12" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="17P Single Elim" />
-  <title>17名シングルエリミネーション トーナメント表 | PWA</title>
+  <meta name="apple-mobile-web-app-title" content="大乱闘スマッシュブラザーズ　大会" />
+  <title>大乱闘スマッシュブラザーズ　大会</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: eスポーツ風のシャープな欧文フォント＆視認性の高い日本語フォント -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -137,7 +137,7 @@
         <div class="w-1.5 h-7 bg-gradient-to-b from-[#00e5ff] via-[#ffd700] to-[#ff2a5f] transform -skew-x-12"></div>
         <div class="flex flex-wrap items-center gap-2 text-xs">
           <span class="px-2 py-0.5 bg-[#00e5ff]/15 border border-[#00e5ff]/40 text-[#00e5ff] font-orbitron font-bold text-[10px] tracking-widest">
-            17 PLAYERS / 16 MATCHES
+            TOURNAMENT BRACKET
           </span>
           <span id="offlineBadge" class="hidden px-2 py-0.5 bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-en font-bold text-[10px] tracking-wider rounded-sm">
             OFFLINE READY
@@ -214,22 +214,22 @@
       <div class="w-full flex items-end justify-between px-6 pt-1 pb-2">
         <div class="flex items-center gap-2 font-orbitron text-xs font-bold tracking-[0.2em] text-[#00e5ff]">
           <span class="w-2.5 h-2.5 bg-[#00e5ff] rotate-45 inline-block shadow-[0_0_8px_#00e5ff]"></span>
-          <span>LEFT BLOCK (8 PLAYERS)</span>
+          <span>LEFT BLOCK</span>
         </div>
 
         <div class="text-center cursor-pointer group" onclick="openBulkModal()" title="クリックしてタイトル・選手名を編集">
           <div id="tournamentSubtitleDisplay"
             class="font-orbitron text-[10px] font-bold tracking-[0.34em] text-[#ffd700] uppercase group-hover:text-white transition">
-            SINGLE ELIMINATION TOURNAMENT
+            TOURNAMENT BRACKET
           </div>
           <h1 id="tournamentTitleDisplay"
             class="text-2xl sm:text-[26px] font-black tracking-wider text-white group-hover:text-[#00e5ff] transition leading-tight">
-            STREET FIGHTER 6 COMMUNITY CUP
+            大乱闘スマッシュブラザーズ　大会
           </h1>
         </div>
 
         <div class="flex items-center gap-2 font-orbitron text-xs font-bold tracking-[0.2em] text-[#ff2a5f]">
-          <span>RIGHT BLOCK (9 PLAYERS)</span>
+          <span>RIGHT BLOCK</span>
           <span class="w-2.5 h-2.5 bg-[#ff2a5f] rotate-45 inline-block shadow-[0_0_8px_#ff2a5f]"></span>
         </div>
       </div>
@@ -247,7 +247,7 @@
       <div class="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between bg-[#0b0f19]">
         <div class="flex items-center gap-2">
           <span class="w-1.5 h-5 bg-[#00e5ff]"></span>
-          <h2 class="text-base font-black text-white tracking-wide">選手名・タイトル一括入力（17名）</h2>
+          <h2 class="text-base font-black text-white tracking-wide">選手名・タイトル一括入力</h2>
         </div>
         <button onclick="closeBulkModal()" class="text-slate-400 hover:text-white text-xl leading-none px-2">&times;</button>
       </div>
@@ -258,20 +258,20 @@
             <label class="block text-xs font-bold text-slate-300 mb-1">大会メインタイトル</label>
             <input id="modalTitleInput" type="text"
               class="w-full bg-[#080b12] border border-slate-700 focus:border-[#00e5ff] rounded px-3 py-2 text-sm text-white outline-none"
-              placeholder="例: 第1回 スト6 コミュニティ大会" />
+              placeholder="例: 大乱闘スマッシュブラザーズ　大会" />
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1">サブタイトル（英語・大会種別など）</label>
             <input id="modalSubtitleInput" type="text"
               class="w-full bg-[#080b12] border border-slate-700 focus:border-[#00e5ff] rounded px-3 py-2 text-sm text-white outline-none"
-              placeholder="例: SINGLE ELIMINATION TOURNAMENT" />
+              placeholder="例: TOURNAMENT BRACKET" />
           </div>
         </div>
 
         <div>
           <div class="flex items-center justify-between mb-1.5">
             <label class="text-xs font-bold text-slate-300">
-              参加者17名（改行区切り・Excelやスプレッドシートからそのまま貼り付け可能）
+              参加者リスト（改行区切り・Excelやスプレッドシートからそのまま貼り付け可能）
             </label>
             <button onclick="resetModalPlayersToDefault()" class="text-[11px] text-rose-400 hover:text-rose-300 font-bold">
               デフォルト名に戻す
@@ -279,10 +279,10 @@
           </div>
           <textarea id="modalPlayersTextarea" rows="10"
             class="w-full bg-[#080b12] border border-slate-700 focus:border-[#00e5ff] rounded p-3 text-sm text-white font-mono leading-relaxed outline-none"
-            placeholder="1〜8行目: 左ブロック (M02〜M05)&#10;9〜15行目: 右ブロック シード7名 (M06下段〜M09)&#10;16〜17行目: 右ブロック 1回戦 Play-In (M01)"></textarea>
+            placeholder="1〜8行目: 左ブロック (M02〜M05)&#10;9〜15行目: 右ブロック シード枠 (M06下段〜M09)&#10;16〜17行目: 右ブロック 1回戦 Play-In (M01)"></textarea>
           <div class="mt-2 bg-slate-900/90 border border-slate-800 rounded p-2.5 text-[11px] text-slate-400 space-y-1">
             <p><strong class="text-[#00e5ff]">● 1〜8行目:</strong> 左ブロック Best 16（M02〜M05 の各2枠）</p>
-            <p><strong class="text-[#ff2a5f]">● 9〜15行目:</strong> 右ブロック Best 16 シード7名（9行目＝M06下段シード、10〜15行目＝M07〜M09）</p>
+            <p><strong class="text-[#ff2a5f]">● 9〜15行目:</strong> 右ブロック Best 16 シード枠（9行目＝M06下段シード、10〜15行目＝M07〜M09）</p>
             <p><strong class="text-[#ffd700]">● 16〜17行目:</strong> 右ブロック 1回戦 Play-In（M01：勝者が M06 上段スロットへ進出）</p>
           </div>
         </div>
@@ -375,7 +375,7 @@
           <path d="M90 150 H165 V270 H90 M165 210 H225" fill="none" stroke="#00e5ff" stroke-width="16" stroke-linecap="square"/>
           <path d="M422 150 H347 V270 H422 M347 210 H287" fill="none" stroke="#ff2a5f" stroke-width="16" stroke-linecap="square"/>
           <polygon points="256,178 286,210 256,242 226,210" fill="#ffd700"/>
-          <text x="256" y="385" font-family="sans-serif" font-weight="900" font-size="72" fill="#ffffff" text-anchor="middle" letter-spacing="4">17P</text>
+          <text x="256" y="385" font-family="sans-serif" font-weight="900" font-size="68" fill="#ffffff" text-anchor="middle" letter-spacing="4">SMASH</text>
           <text x="256" y="438" font-family="sans-serif" font-weight="700" font-size="30" fill="#00e5ff" text-anchor="middle" letter-spacing="6">BRACKET</text>
         </svg>
       `.trim();
@@ -396,9 +396,9 @@
 
       // Web App Manifest を Blob URL で生成
       const manifest = {
-        name: '17名シングルエリミネーション トーナメント表',
-        short_name: '17P Bracket',
-        description: '17-Player Single Elimination Fighting Game Tournament Bracket',
+        name: '大乱闘スマッシュブラザーズ　大会',
+        short_name: '大乱闘スマッシュブラザーズ　大会',
+        description: '大乱闘スマッシュブラザーズ　大会 トーナメント表',
         start_url: window.location.href,
         display: 'standalone',
         orientation: 'landscape',
@@ -428,7 +428,7 @@
       // Service Worker 登録（HTTP/HTTPS環境でのオフライン動作対応）
       if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.protocol === 'http:')) {
         const swScript = `
-          const CACHE_NAME = 'tournament-17p-pwa-v1';
+          const CACHE_NAME = 'smash-tournament-pwa-v2';
           self.addEventListener('install', (e) => {
             self.skipWaiting();
             e.waitUntil(
@@ -510,13 +510,13 @@
      * 2. トーナメント状態管理・LocalStorage 永続化
      * =========================================================================
      */
-    const STORAGE_KEY = 'tournament_17p_pwa_state_v1';
+    const STORAGE_KEY = 'smash_tournament_17p_v2';
 
     const DEFAULT_PLAYERS = Array.from({ length: 17 }, (_, i) => `PLAYER ${String(i + 1).padStart(2, '0')}`);
 
     let state = {
-      title: 'STREET FIGHTER 6 COMMUNITY CUP',
-      subtitle: 'SINGLE ELIMINATION TOURNAMENT',
+      title: '大乱闘スマッシュブラザーズ　大会',
+      subtitle: 'TOURNAMENT BRACKET',
       players: [...DEFAULT_PLAYERS],
       results: {} // { M01: 1, M02: 2, ... }
     };
