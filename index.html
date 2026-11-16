@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080b12" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="17P Single Elim" />
+  <title>17名シングルエリミネーション トーナメント表 | PWA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: eスポーツ風のシャープな欧文フォント＆視認性の高い日本語フォント -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700;900&family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #080b12;
+      --panel-bg: #101522;
+      --panel-hover: #182034;
+      --border-subtle: #222d42;
+      --left-accent: #00e5ff;
+      --right-accent: #ff2a5f;
+      --gold-accent: #ffd700;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: #f1f5f9;
+      font-family: 'Noto Sans JP', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-image:
+        radial-gradient(circle at 50% 42%, rgba(255, 215, 0, 0.06) 0%, transparent 44%),
+        radial-gradient(circle at 12% 50%, rgba(0, 229, 255, 0.065) 0%, transparent 45%),
+        radial-gradient(circle at 88% 50%, rgba(255, 42, 95, 0.065) 0%, transparent 45%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px, 28px 28px;
+    }
+
+    .font-en {
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    .font-orbitron {
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    /* 格闘ゲームUI風の斜めカット（面取り）カード */
+    .fg-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-subtle);
+      clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .fg-slot {
+      position: relative;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .fg-slot:hover:not(.disabled-slot) {
+      background-color: var(--panel-hover);
+    }
+
+    .fg-slot.is-winner.left-theme {
+      background: linear-gradient(90deg, rgba(0, 229, 255, 0.22) 0%, rgba(0, 229, 255, 0.04) 100%);
+    }
+
+    .fg-slot.is-winner.right-theme {
+      background: linear-gradient(90deg, rgba(255, 42, 95, 0.22) 0%, rgba(255, 42, 95, 0.04) 100%);
+    }
+
+    .fg-slot.is-winner.final-theme {
+      background: linear-gradient(90deg, rgba(255, 215, 0, 0.26) 0%, rgba(255, 215, 0, 0.05) 100%);
+    }
+
+    .fg-slot.is-loser {
+      opacity: 0.36;
+    }
+
+    .edit-highlight {
+      box-shadow: 0 0 0 1px rgba(0, 229, 255, 0.7);
+    }
+
+    /* 配信モード（UI完全非表示） */
+    body.broadcast-mode .no-stream {
+      display: none !important;
+    }
+
+    body.broadcast-mode .stream-restore-zone {
+      display: flex !important;
+    }
+
+    /* カスタムスクロールバー */
+    ::-webkit-scrollbar {
+      height: 7px;
+      width: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #080b12;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #222d42;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334361;
+    }
+
+    /* 印刷・PDF保存用 */
+    @media print {
+      body {
+        background: #080b12 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .no-stream, .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between select-none">
+
+  <!-- トップコントロールバー（配信モード時は完全非表示） -->
+  <header class="no-stream border-b border-slate-800/90 bg-[#0b0f19]/95 backdrop-blur-md sticky top-0 z-40 px-4 py-2.5">
+    <div class="max-w-[1640px] mx-auto flex flex-wrap items-center justify-between gap-2.5">
+      <!-- 左側ステータスバッジ -->
+      <div class="flex items-center gap-3">
+        <div class="w-1.5 h-7 bg-gradient-to-b from-[#00e5ff] via-[#ffd700] to-[#ff2a5f] transform -skew-x-12"></div>
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+          <span class="px-2 py-0.5 bg-[#00e5ff]/15 border border-[#00e5ff]/40 text-[#00e5ff] font-orbitron font-bold text-[10px] tracking-widest">
+            17 PLAYERS / 16 MATCHES
+          </span>
+          <span id="offlineBadge" class="hidden px-2 py-0.5 bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-en font-bold text-[10px] tracking-wider rounded-sm">
+            OFFLINE READY
+          </span>
+          <span id="modeGuideText" class="hidden xl:inline text-slate-400 text-xs">
+            勝者となる選手名をクリックすると次の試合へ自動進出します
+          </span>
+        </div>
+      </div>
+
+      <!-- 右側操作ボタン群 -->
+      <div class="flex flex-wrap items-center gap-2 no-print">
+        <!-- モード切替: 勝敗進行モード ⇔ 選手名直接編集モード -->
+        <button id="toggleModeBtn" onclick="toggleInteractionMode()"
+          class="px-3 py-1.5 text-xs font-bold tracking-wider bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-600 rounded transition flex items-center gap-1.5">
+          <span id="modeDot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span id="modeLabel">勝敗進行モード</span>
+        </button>
+
+        <!-- 選手名・タイトル一括入力モーダル -->
+        <button onclick="openBulkModal()"
+          class="px-3 py-1.5 text-xs font-bold tracking-wider bg-[#00e5ff]/15 hover:bg-[#00e5ff]/25 text-[#00e5ff] border border-[#00e5ff]/50 rounded transition flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          <span>選手名・タイトル一括入力</span>
+        </button>
+
+        <!-- 試合結果リセット -->
+        <button onclick="resetMatchResults()"
+          class="px-3 py-1.5 text-xs font-bold tracking-wider bg-rose-950/50 hover:bg-rose-900/60 text-rose-200 border border-rose-800/60 rounded transition">
+          試合結果リセット
+        </button>
+
+        <!-- 印刷 / PDF出力 -->
+        <button onclick="window.print()"
+          class="px-3 py-1.5 text-xs font-bold tracking-wider bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded transition">
+          印刷 / PDF
+        </button>
+
+        <!-- PWAインストール / アプリ化 -->
+        <button id="pwaInstallBtn" onclick="handlePwaInstallClick()"
+          class="px-3 py-1.5 text-xs font-bold tracking-wider bg-emerald-950/60 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-600/50 rounded transition flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          <span id="pwaBtnText">PWAインストール / アプリ化</span>
+        </button>
+
+        <!-- 配信モード (UI非表示 / Hキー) -->
+        <button onclick="toggleBroadcastMode()"
+          class="px-3 py-1.5 text-xs font-bold tracking-wider bg-[#ffd700]/15 hover:bg-[#ffd700]/25 text-[#ffd700] border border-[#ffd700]/50 rounded transition flex items-center gap-1.5"
+          title="ショートカットキー: H">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          <span>配信モード (H)</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 配信モード解除用コーナーボタン（通常時は非表示、配信モード時は右下に控えめに配置） -->
+  <button onclick="toggleBroadcastMode()"
+    class="stream-restore-zone hidden fixed bottom-2.5 right-2.5 z-50 px-2.5 py-1 bg-slate-950/60 hover:bg-slate-900 text-slate-500 hover:text-slate-200 text-[10px] font-bold border border-slate-800/70 rounded backdrop-blur-sm opacity-40 hover:opacity-100 transition items-center gap-1">
+    <span>UI表示 (H)</span>
+  </button>
+
+  <!-- 16:9 配信キャプチャ領域 -->
+  <main class="flex-1 flex flex-col items-center justify-center px-3 py-2 overflow-x-auto">
+    <div id="stageContainer" class="w-[1560px] shrink-0 flex flex-col items-center">
+
+      <!-- 大会タイトル＆ブロックヘッダー -->
+      <div class="w-full flex items-end justify-between px-6 pt-1 pb-2">
+        <div class="flex items-center gap-2 font-orbitron text-xs font-bold tracking-[0.2em] text-[#00e5ff]">
+          <span class="w-2.5 h-2.5 bg-[#00e5ff] rotate-45 inline-block shadow-[0_0_8px_#00e5ff]"></span>
+          <span>LEFT BLOCK (8 PLAYERS)</span>
+        </div>
+
+        <div class="text-center cursor-pointer group" onclick="openBulkModal()" title="クリックしてタイトル・選手名を編集">
+          <div id="tournamentSubtitleDisplay"
+            class="font-orbitron text-[10px] font-bold tracking-[0.34em] text-[#ffd700] uppercase group-hover:text-white transition">
+            SINGLE ELIMINATION TOURNAMENT
+          </div>
+          <h1 id="tournamentTitleDisplay"
+            class="text-2xl sm:text-[26px] font-black tracking-wider text-white group-hover:text-[#00e5ff] transition leading-tight">
+            STREET FIGHTER 6 COMMUNITY CUP
+          </h1>
+        </div>
+
+        <div class="flex items-center gap-2 font-orbitron text-xs font-bold tracking-[0.2em] text-[#ff2a5f]">
+          <span>RIGHT BLOCK (9 PLAYERS)</span>
+          <span class="w-2.5 h-2.5 bg-[#ff2a5f] rotate-45 inline-block shadow-[0_0_8px_#ff2a5f]"></span>
+        </div>
+      </div>
+
+      <!-- トーナメント描画キャンバス (1560 x 735) -->
+      <div id="bracketCanvas" class="relative w-[1560px] h-[735px]">
+        <!-- JSでSVG接続線と全16試合カード・優勝枠を描画 -->
+      </div>
+    </div>
+  </main>
+
+  <!-- 選手名・タイトル一括入力モーダル -->
+  <div id="bulkModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#101522] border border-slate-700 w-full max-w-2xl rounded-lg shadow-2xl overflow-hidden">
+      <div class="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between bg-[#0b0f19]">
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-5 bg-[#00e5ff]"></span>
+          <h2 class="text-base font-black text-white tracking-wide">選手名・タイトル一括入力（17名）</h2>
+        </div>
+        <button onclick="closeBulkModal()" class="text-slate-400 hover:text-white text-xl leading-none px-2">&times;</button>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">大会メインタイトル</label>
+            <input id="modalTitleInput" type="text"
+              class="w-full bg-[#080b12] border border-slate-700 focus:border-[#00e5ff] rounded px-3 py-2 text-sm text-white outline-none"
+              placeholder="例: 第1回 スト6 コミュニティ大会" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">サブタイトル（英語・大会種別など）</label>
+            <input id="modalSubtitleInput" type="text"
+              class="w-full bg-[#080b12] border border-slate-700 focus:border-[#00e5ff] rounded px-3 py-2 text-sm text-white outline-none"
+              placeholder="例: SINGLE ELIMINATION TOURNAMENT" />
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-bold text-slate-300">
+              参加者17名（改行区切り・Excelやスプレッドシートからそのまま貼り付け可能）
+            </label>
+            <button onclick="resetModalPlayersToDefault()" class="text-[11px] text-rose-400 hover:text-rose-300 font-bold">
+              デフォルト名に戻す
+            </button>
+          </div>
+          <textarea id="modalPlayersTextarea" rows="10"
+            class="w-full bg-[#080b12] border border-slate-700 focus:border-[#00e5ff] rounded p-3 text-sm text-white font-mono leading-relaxed outline-none"
+            placeholder="1〜8行目: 左ブロック (M02〜M05)&#10;9〜15行目: 右ブロック シード7名 (M06下段〜M09)&#10;16〜17行目: 右ブロック 1回戦 Play-In (M01)"></textarea>
+          <div class="mt-2 bg-slate-900/90 border border-slate-800 rounded p-2.5 text-[11px] text-slate-400 space-y-1">
+            <p><strong class="text-[#00e5ff]">● 1〜8行目:</strong> 左ブロック Best 16（M02〜M05 の各2枠）</p>
+            <p><strong class="text-[#ff2a5f]">● 9〜15行目:</strong> 右ブロック Best 16 シード7名（9行目＝M06下段シード、10〜15行目＝M07〜M09）</p>
+            <p><strong class="text-[#ffd700]">● 16〜17行目:</strong> 右ブロック 1回戦 Play-In（M01：勝者が M06 上段スロットへ進出）</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-5 py-3.5 border-t border-slate-800 bg-[#0b0f19] flex items-center justify-end gap-2.5">
+        <button onclick="closeBulkModal()"
+          class="px-4 py-2 text-xs font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded transition">
+          キャンセル
+        </button>
+        <button onclick="saveBulkModal()"
+          class="px-5 py-2 text-xs font-bold text-slate-950 bg-[#00e5ff] hover:bg-[#33ecff] rounded transition">
+          反映して保存
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 個別選手名編集モーダル（選手名直接編集モード用） -->
+  <div id="inlineEditModal" class="hidden fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+    <div class="bg-[#101522] border border-[#00e5ff]/60 w-full max-w-sm rounded-lg p-4 shadow-2xl">
+      <div class="text-xs font-bold text-[#00e5ff] mb-2" id="inlineEditLabel">選手名を編集</div>
+      <input id="inlineEditInput" type="text"
+        class="w-full bg-[#080b12] border border-slate-700 focus:border-[#00e5ff] rounded px-3 py-2 text-sm text-white outline-none mb-3"
+        placeholder="選手名を入力" />
+      <div class="flex justify-end gap-2">
+        <button onclick="closeInlineEdit()" class="px-3 py-1.5 text-xs font-bold text-slate-400 hover:text-white">キャンセル</button>
+        <button onclick="saveInlineEdit()" class="px-4 py-1.5 text-xs font-bold bg-[#00e5ff] text-slate-950 rounded">決定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PWAインストール手順案内モーダル -->
+  <div id="pwaHelpModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#101522] border border-[#00e5ff]/60 w-full max-w-md rounded-lg shadow-2xl overflow-hidden">
+      <div class="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between bg-[#0b0f19]">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <h2 class="text-sm font-black text-white tracking-wide">PWA / スタンドアロンアプリ化ガイド</h2>
+        </div>
+        <button onclick="closePwaHelpModal()" class="text-slate-400 hover:text-white text-xl leading-none px-2">&times;</button>
+      </div>
+      <div class="p-5 space-y-3 text-xs text-slate-300 leading-relaxed">
+        <p>
+          このトーナメント表は <strong class="text-[#00e5ff]">PWA（Progressive Web App）</strong> に対応しており、ブラウザの枠がない独立ウィンドウで起動できます。
+        </p>
+        <div class="bg-slate-900/90 border border-slate-800 rounded p-3 space-y-2">
+          <p class="font-bold text-white">■ Chrome / Edge でのインストール手順</p>
+          <ol class="list-decimal list-inside space-y-1 text-slate-300">
+            <li>アドレスバー右端の<strong>「インストール」アイコン</strong>、またはブラウザ右上のメニュー（⋮）を開きます。</li>
+            <li><strong>「アプリをインストール」</strong>（Edgeの場合は「アプリ」→「このサイトをアプリとしてインストール」）を選択します。</li>
+          </ol>
+        </div>
+        <p class="text-[11px] text-slate-400">
+          ※ローカルファイル（<code class="text-slate-200">file://</code>）として直接開いている場合は、VS Codeの<strong>Live Server</strong>や<strong>GitHub Pages</strong>等のHTTP/HTTPS環境で開くとインストール機能が有効になります。入力した選手名と勝敗はブラウザに自動保存されます。
+        </p>
+      </div>
+      <div class="px-5 py-3 border-t border-slate-800 bg-[#0b0f19] flex justify-end">
+        <button onclick="closePwaHelpModal()" class="px-4 py-1.5 text-xs font-bold bg-[#00e5ff] text-slate-950 rounded">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * =========================================================================
+     * 1. PWA 初期化（512x512 SVGアイコン + 動的 Web App Manifest + Service Worker）
+     * =========================================================================
+     */
+    let deferredPrompt = null;
+
+    function initPWA() {
+      // eスポーツ風512x512 SVGアプリアイコンの動的生成
+      const iconSvg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+          <defs>
+            <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#080b12"/>
+              <stop offset="100%" stop-color="#141c2e"/>
+            </linearGradient>
+            <linearGradient id="borderGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#00e5ff"/>
+              <stop offset="50%" stop-color="#ffd700"/>
+              <stop offset="100%" stop-color="#ff2a5f"/>
+            </linearGradient>
+          </defs>
+          <rect width="512" height="512" rx="96" fill="url(#bgGrad)"/>
+          <rect x="20" y="20" width="472" height="472" rx="80" fill="none" stroke="url(#borderGrad)" stroke-width="10"/>
+          <!-- 左右対称ブラケットライン -->
+          <path d="M90 150 H165 V270 H90 M165 210 H225" fill="none" stroke="#00e5ff" stroke-width="16" stroke-linecap="square"/>
+          <path d="M422 150 H347 V270 H422 M347 210 H287" fill="none" stroke="#ff2a5f" stroke-width="16" stroke-linecap="square"/>
+          <polygon points="256,178 286,210 256,242 226,210" fill="#ffd700"/>
+          <text x="256" y="385" font-family="sans-serif" font-weight="900" font-size="72" fill="#ffffff" text-anchor="middle" letter-spacing="4">17P</text>
+          <text x="256" y="438" font-family="sans-serif" font-weight="700" font-size="30" fill="#00e5ff" text-anchor="middle" letter-spacing="6">BRACKET</text>
+        </svg>
+      `.trim();
+
+      const iconDataUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(iconSvg);
+
+      // Favicon & Apple Touch Icon 設定
+      const favLink = document.createElement('link');
+      favLink.rel = 'icon';
+      favLink.type = 'image/svg+xml';
+      favLink.href = iconDataUri;
+      document.head.appendChild(favLink);
+
+      const appleLink = document.createElement('link');
+      appleLink.rel = 'apple-touch-icon';
+      appleLink.href = iconDataUri;
+      document.head.appendChild(appleLink);
+
+      // Web App Manifest を Blob URL で生成
+      const manifest = {
+        name: '17名シングルエリミネーション トーナメント表',
+        short_name: '17P Bracket',
+        description: '17-Player Single Elimination Fighting Game Tournament Bracket',
+        start_url: window.location.href,
+        display: 'standalone',
+        orientation: 'landscape',
+        background_color: '#080b12',
+        theme_color: '#080b12',
+        icons: [
+          {
+            src: iconDataUri,
+            sizes: '192x192 512x512',
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
+          }
+        ]
+      };
+
+      try {
+        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        const manifestEl = document.createElement('link');
+        manifestEl.rel = 'manifest';
+        manifestEl.href = manifestUrl;
+        document.head.appendChild(manifestEl);
+      } catch (e) {
+        console.warn('Manifest injection skipped:', e);
+      }
+
+      // Service Worker 登録（HTTP/HTTPS環境でのオフライン動作対応）
+      if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.protocol === 'http:')) {
+        const swScript = `
+          const CACHE_NAME = 'tournament-17p-pwa-v1';
+          self.addEventListener('install', (e) => {
+            self.skipWaiting();
+            e.waitUntil(
+              caches.open(CACHE_NAME).then((cache) => cache.addAll([self.location.href]).catch(() => {}))
+            );
+          });
+          self.addEventListener('activate', (e) => {
+            e.waitUntil(self.clients.claim());
+          });
+          self.addEventListener('fetch', (e) => {
+            if (e.request.method !== 'GET') return;
+            e.respondWith(
+              caches.match(e.request).then((cached) => {
+                const netFetch = fetch(e.request).then((res) => {
+                  if (res && res.status === 200) {
+                    const copy = res.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(e.request, copy));
+                  }
+                  return res;
+                }).catch(() => cached);
+                return cached || netFetch;
+              })
+            );
+          });
+        `;
+
+        try {
+          const swBlob = new Blob([swScript], { type: 'application/javascript' });
+          const swUrl = URL.createObjectURL(swBlob);
+          navigator.serviceWorker.register(swUrl)
+            .then(() => {
+              const badge = document.getElementById('offlineBadge');
+              if (badge) badge.classList.remove('hidden');
+            })
+            .catch(() => {});
+        } catch (e) {
+          console.warn('ServiceWorker registration skipped:', e);
+        }
+      }
+
+      // ブラウザからのインストールプロンプト捕捉
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const btnText = document.getElementById('pwaBtnText');
+        if (btnText) btnText.textContent = 'アプリとしてインストール';
+      });
+
+      window.addEventListener('appinstalled', () => {
+        deferredPrompt = null;
+        const btnText = document.getElementById('pwaBtnText');
+        if (btnText) btnText.textContent = 'PWAインストール済み';
+        closePwaHelpModal();
+      });
+
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        const btnText = document.getElementById('pwaBtnText');
+        if (btnText) btnText.textContent = 'PWAアプリモード稼働中';
+      }
+    }
+
+    function handlePwaInstallClick() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+          deferredPrompt = null;
+        });
+      } else {
+        document.getElementById('pwaHelpModal').classList.remove('hidden');
+      }
+    }
+
+    function closePwaHelpModal() {
+      document.getElementById('pwaHelpModal').classList.add('hidden');
+    }
+
+    /**
+     * =========================================================================
+     * 2. トーナメント状態管理・LocalStorage 永続化
+     * =========================================================================
+     */
+    const STORAGE_KEY = 'tournament_17p_pwa_state_v1';
+
+    const DEFAULT_PLAYERS = Array.from({ length: 17 }, (_, i) => `PLAYER ${String(i + 1).padStart(2, '0')}`);
+
+    let state = {
+      title: 'STREET FIGHTER 6 COMMUNITY CUP',
+      subtitle: 'SINGLE ELIMINATION TOURNAMENT',
+      players: [...DEFAULT_PLAYERS],
+      results: {} // { M01: 1, M02: 2, ... }
+    };
+
+    let isDirectEditMode = false;
+    let editingSeedIdx = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed.title) state.title = parsed.title;
+          if (parsed.subtitle) state.subtitle = parsed.subtitle;
+          if (Array.isArray(parsed.players) && parsed.players.length === 17) {
+            state.players = parsed.players;
+          }
+          if (parsed.results && typeof parsed.results === 'object') {
+            state.results = parsed.results;
+          }
+        }
+      } catch (e) {
+        console.warn('State load error:', e);
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.warn('State save error:', e);
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 3. 17名シングルエリミネーション（全16試合: M01〜M16）レイアウト定義
+     *
+     * 左右対称（センターファイナル）構成:
+     * - 左ブロック (8名):
+     *   Round of 16: M02(idx 0,1), M03(idx 2,3), M04(idx 4,5), M05(idx 6,7)
+     *   Quarterfinal: M10(M02 vs M03), M11(M04 vs M05)
+     *   Semifinal: M14(M10 vs M11)
+     * - 中央:
+     *   Grand Final: M16(M14 vs M15) + CHAMPION 枠
+     * - 右ブロック (9名):
+     *   Round 1 Play-In: M01(idx 15,16) -> 勝者が M06 上段スロットへ進出
+     *   Round of 16: M06(M01勝者 vs idx 8), M07(idx 9,10), M08(idx 11,12), M09(idx 13,14)
+     *   Quarterfinal: M12(M06 vs M07), M13(M08 vs M09)
+     *   Semifinal: M15(M12 vs M13)
+     * =========================================================================
+     */
+    const CARD_W = 195;
+    const CARD_H = 66;
+
+    const MATCHES = [
+      // --- 左ブロック Round of 16 (M02 - M05) ---
+      { id: 'M02', round: 'ROUND OF 16', side: 'left', tier: 'normal', x: 20, y: 45,
+        p1: { type: 'seed', idx: 0 }, p2: { type: 'seed', idx: 1 } },
+      { id: 'M03', round: 'ROUND OF 16', side: 'left', tier: 'normal', x: 20, y: 215,
+        p1: { type: 'seed', idx: 2 }, p2: { type: 'seed', idx: 3 } },
+      { id: 'M04', round: 'ROUND OF 16', side: 'left', tier: 'normal', x: 20, y: 385,
+        p1: { type: 'seed', idx: 4 }, p2: { type: 'seed', idx: 5 } },
+      { id: 'M05', round: 'ROUND OF 16', side: 'left', tier: 'normal', x: 20, y: 555,
+        p1: { type: 'seed', idx: 6 }, p2: { type: 'seed', idx: 7 } },
+
+      // --- 左ブロック 準々決勝 (M10 - M11) ---
+      { id: 'M10', round: 'QUARTERFINAL', side: 'left', tier: 'normal', x: 245, y: 130,
+        p1: { type: 'match', id: 'M02' }, p2: { type: 'match', id: 'M03' } },
+      { id: 'M11', round: 'QUARTERFINAL', side: 'left', tier: 'normal', x: 245, y: 470,
+        p1: { type: 'match', id: 'M04' }, p2: { type: 'match', id: 'M05' } },
+
+      // --- 左ブロック 準決勝 (M14) ---
+      { id: 'M14', round: 'SEMIFINAL', side: 'left', tier: 'semi', x: 465, y: 300,
+        p1: { type: 'match', id: 'M10' }, p2: { type: 'match', id: 'M11' } },
+
+      // --- 中央 決勝戦 (M16) ---
+      { id: 'M16', round: 'GRAND FINAL', side: 'center', tier: 'final', x: 682, y: 270,
+        p1: { type: 'match', id: 'M14' }, p2: { type: 'match', id: 'M15' } },
+
+      // --- 右ブロック 準決勝 (M15) ---
+      { id: 'M15', round: 'SEMIFINAL', side: 'right', tier: 'semi', x: 900, y: 300,
+        p1: { type: 'match', id: 'M12' }, p2: { type: 'match', id: 'M13' } },
+
+      // --- 右ブロック 準々決勝 (M12 - M13) ---
+      { id: 'M12', round: 'QUARTERFINAL', side: 'right', tier: 'normal', x: 1120, y: 130,
+        p1: { type: 'match', id: 'M06' }, p2: { type: 'match', id: 'M07' } },
+      { id: 'M13', round: 'QUARTERFINAL', side: 'right', tier: 'normal', x: 1120, y: 470,
+        p1: { type: 'match', id: 'M08' }, p2: { type: 'match', id: 'M09' } },
+
+      // --- 右ブロック 1回戦 Play-In (M01) ---
+      { id: 'M01', round: 'ROUND 1 (PLAY-IN)', side: 'right', tier: 'prelim', x: 1345, y: 38,
+        p1: { type: 'seed', idx: 15 }, p2: { type: 'seed', idx: 16 } },
+
+      // --- 右ブロック Round of 16 (M06 - M09) ---
+      { id: 'M06', round: 'ROUND OF 16', side: 'right', tier: 'normal', x: 1345, y: 155,
+        p1: { type: 'match', id: 'M01' }, p2: { type: 'seed', idx: 8 } },
+      { id: 'M07', round: 'ROUND OF 16', side: 'right', tier: 'normal', x: 1345, y: 288,
+        p1: { type: 'seed', idx: 9 }, p2: { type: 'seed', idx: 10 } },
+      { id: 'M08', round: 'ROUND OF 16', side: 'right', tier: 'normal', x: 1345, y: 422,
+        p1: { type: 'seed', idx: 11 }, p2: { type: 'seed', idx: 12 } },
+      { id: 'M09', round: 'ROUND OF 16', side: 'right', tier: 'normal', x: 1345, y: 555,
+        p1: { type: 'seed', idx: 13 }, p2: { type: 'seed', idx: 14 } }
+    ];
+
+    function resolveSlot(source) {
+      if (source.type === 'seed') {
+        const raw = state.players[source.idx];
+        return {
+          name: raw && raw.trim() !== '' ? raw : `PLAYER ${String(source.idx + 1).padStart(2, '0')}`,
+          seedIdx: source.idx,
+          isReady: true,
+          subLabel: `#${String(source.idx + 1).padStart(2, '0')}`
+        };
+      }
+
+      const parentMatch = MATCHES.find(m => m.id === source.id);
+      const winSlot = state.results[source.id];
+      if (!parentMatch || !winSlot) {
+        return {
+          name: `${source.id} 勝者`,
+          seedIdx: null,
+          isReady: false,
+          subLabel: source.id
+        };
+      }
+
+      const chosenSource = winSlot === 1 ? parentMatch.p1 : parentMatch.p2;
+      const resolved = resolveSlot(chosenSource);
+      return {
+        ...resolved,
+        subLabel: source.id
+      };
+    }
+
+    function handleSlotClick(matchId, slotNum) {
+      const match = MATCHES.find(m => m.id === matchId);
+      if (!match) return;
+
+      const source = slotNum === 1 ? match.p1 : match.p2;
+
+      // 選手名直接編集モード
+      if (isDirectEditMode) {
+        if (source.type === 'seed') {
+          openInlineEdit(source.idx);
+        }
+        return;
+      }
+
+      // 勝敗進行モード
+      const p1 = resolveSlot(match.p1);
+      const p2 = resolveSlot(match.p2);
+      if (!p1.isReady || !p2.isReady) return;
+
+      if (state.results[matchId] === slotNum) {
+        delete state.results[matchId];
+      } else {
+        state.results[matchId] = slotNum;
+      }
+
+      cleanupDownstreamResults();
+      saveState();
+      renderBracket();
+    }
+
+    function cleanupDownstreamResults() {
+      let changed = true;
+      while (changed) {
+        changed = false;
+        for (const m of MATCHES) {
+          if (state.results[m.id]) {
+            const p1 = resolveSlot(m.p1);
+            const p2 = resolveSlot(m.p2);
+            if (!p1.isReady || !p2.isReady) {
+              delete state.results[m.id];
+              changed = true;
+            }
+          }
+        }
+      }
+    }
+
+    function resetMatchResults() {
+      state.results = {};
+      saveState();
+      renderBracket();
+    }
+
+    function toggleInteractionMode() {
+      isDirectEditMode = !isDirectEditMode;
+      const dot = document.getElementById('modeDot');
+      const label = document.getElementById('modeLabel');
+      const guide = document.getElementById('modeGuideText');
+
+      if (isDirectEditMode) {
+        dot.className = 'w-2 h-2 rounded-full bg-[#00e5ff] animate-pulse';
+        label.textContent = '選手名直接編集モード';
+        guide.textContent = '初期枠の選手名をクリックするとその場で名前を変更できます';
+      } else {
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+        label.textContent = '勝敗進行モード';
+        guide.textContent = '勝者となる選手名をクリックすると次の試合へ自動進出します';
+      }
+      renderBracket();
+    }
+
+    function openInlineEdit(seedIdx) {
+      editingSeedIdx = seedIdx;
+      document.getElementById('inlineEditLabel').textContent = `枠 #${String(seedIdx + 1).padStart(2, '0')} の選手名を編集`;
+      const input = document.getElementById('inlineEditInput');
+      input.value = state.players[seedIdx] || '';
+      document.getElementById('inlineEditModal').classList.remove('hidden');
+      setTimeout(() => input.focus(), 30);
+    }
+
+    function closeInlineEdit() {
+      document.getElementById('inlineEditModal').classList.add('hidden');
+      editingSeedIdx = null;
+    }
+
+    function saveInlineEdit() {
+      if (editingSeedIdx !== null) {
+        const val = document.getElementById('inlineEditInput').value.trim();
+        state.players[editingSeedIdx] = val || DEFAULT_PLAYERS[editingSeedIdx];
+        saveState();
+        renderBracket();
+      }
+      closeInlineEdit();
+    }
+
+    function openBulkModal() {
+      document.getElementById('modalTitleInput').value = state.title;
+      document.getElementById('modalSubtitleInput').value = state.subtitle;
+      document.getElementById('modalPlayersTextarea').value = state.players.join('\n');
+      document.getElementById('bulkModal').classList.remove('hidden');
+    }
+
+    function closeBulkModal() {
+      document.getElementById('bulkModal').classList.add('hidden');
+    }
+
+    function resetModalPlayersToDefault() {
+      document.getElementById('modalPlayersTextarea').value = DEFAULT_PLAYERS.join('\n');
+    }
+
+    function saveBulkModal() {
+      const newTitle = document.getElementById('modalTitleInput').value.trim();
+      const newSubtitle = document.getElementById('modalSubtitleInput').value.trim();
+      if (newTitle) state.title = newTitle;
+      if (newSubtitle) state.subtitle = newSubtitle;
+
+      const lines = document.getElementById('modalPlayersTextarea').value
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+
+      for (let i = 0; i < 17; i++) {
+        state.players[i] = lines[i] ? lines[i] : DEFAULT_PLAYERS[i];
+      }
+
+      saveState();
+      closeBulkModal();
+      renderBracket();
+    }
+
+    function toggleBroadcastMode() {
+      document.body.classList.toggle('broadcast-mode');
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function renderBracket() {
+      document.getElementById('tournamentTitleDisplay').textContent = state.title;
+      document.getElementById('tournamentSubtitleDisplay').textContent = state.subtitle;
+
+      const canvas = document.getElementById('bracketCanvas');
+      const matchMap = {};
+      MATCHES.forEach(m => { matchMap[m.id] = m; });
+
+      // 左右接続ライン定義
+      const connections = [
+        // 左ブロック (Left -> Right)
+        { from: 'M02', to: 'M10', slot: 1, dir: 'lr', color: '#00e5ff' },
+        { from: 'M03', to: 'M10', slot: 2, dir: 'lr', color: '#00e5ff' },
+        { from: 'M04', to: 'M11', slot: 1, dir: 'lr', color: '#00e5ff' },
+        { from: 'M05', to: 'M11', slot: 2, dir: 'lr', color: '#00e5ff' },
+        { from: 'M10', to: 'M14', slot: 1, dir: 'lr', color: '#00e5ff' },
+        { from: 'M11', to: 'M14', slot: 2, dir: 'lr', color: '#00e5ff' },
+        { from: 'M14', to: 'M16', slot: 1, dir: 'lr', color: '#ffd700' },
+
+        // 右ブロック (Right -> Left)
+        { from: 'M06', to: 'M12', slot: 1, dir: 'rl', color: '#ff2a5f' },
+        { from: 'M07', to: 'M12', slot: 2, dir: 'rl', color: '#ff2a5f' },
+        { from: 'M08', to: 'M13', slot: 1, dir: 'rl', color: '#ff2a5f' },
+        { from: 'M09', to: 'M13', slot: 2, dir: 'rl', color: '#ff2a5f' },
+        { from: 'M12', to: 'M15', slot: 1, dir: 'rl', color: '#ff2a5f' },
+        { from: 'M13', to: 'M15', slot: 2, dir: 'rl', color: '#ff2a5f' },
+        { from: 'M15', to: 'M16', slot: 2, dir: 'rl', color: '#ffd700' }
+      ];
+
+      let svgHtml = '';
+
+      connections.forEach(c => {
+        const src = matchMap[c.from];
+        const dst = matchMap[c.to];
+        const isActive = Boolean(state.results[c.from]);
+
+        const y1 = src.y + CARD_H / 2;
+        const y2 = dst.y + (c.slot === 1 ? 16 : 50);
+
+        let x1, x2, midX;
+        if (c.dir === 'lr') {
+          x1 = src.x + CARD_W;
+          x2 = dst.x;
+          midX = x1 + (x2 - x1) * 0.5;
+        } else {
+          x1 = src.x;
+          x2 = dst.x + CARD_W;
+          midX = x1 - (x1 - x2) * 0.5;
+        }
+
+        const pathD = `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`;
+        svgHtml += `
+          <path d="${pathD}" fill="none"
+                stroke="${isActive ? c.color : '#253147'}"
+                stroke-width="${isActive ? '2.5' : '1.5'}"
+                stroke-opacity="${isActive ? '0.95' : '0.8'}" />
+        `;
+      });
+
+      // 特殊接続: 右ブロック 1回戦 Play-In (M01) -> Round of 16 (M06 上段スロット) への接続ライン
+      const m01 = matchMap['M01'];
+      const m06 = matchMap['M06'];
+      const m01Active = Boolean(state.results['M01']);
+      const p01StartX = m01.x + CARD_W;
+      const p01StartY = m01.y + CARD_H / 2;
+      const p06EndX = m06.x + CARD_W;
+      const p06EndY = m06.y + 16;
+      const loopX = p01StartX + 14;
+      const m01Path = `M ${p01StartX} ${p01StartY} L ${loopX} ${p01StartY} L ${loopX} ${p06EndY} L ${p06EndX} ${p06EndY}`;
+
+      svgHtml += `
+        <path d="${m01Path}" fill="none"
+              stroke="${m01Active ? '#ffd700' : '#3d4d6b'}"
+              stroke-width="${m01Active ? '2.5' : '1.5'}"
+              stroke-dasharray="${m01Active ? 'none' : '4 2'}" />
+      `;
+
+      // カラムヘッダー
+      const columnHeaders = `
+        <div style="left:20px; top:6px; width:${CARD_W}px;" class="absolute text-center font-en text-[11px] font-bold tracking-widest text-[#00e5ff]/80">ROUND OF 16</div>
+        <div style="left:245px; top:6px; width:${CARD_W}px;" class="absolute text-center font-en text-[11px] font-bold tracking-widest text-slate-400">QUARTERFINALS</div>
+        <div style="left:465px; top:6px; width:${CARD_W}px;" class="absolute text-center font-en text-[11px] font-bold tracking-widest text-[#00e5ff]">SEMIFINAL</div>
+        <div style="left:682px; top:6px; width:${CARD_W}px;" class="absolute text-center font-en text-[11px] font-bold tracking-widest text-[#ffd700]">GRAND FINAL</div>
+        <div style="left:900px; top:6px; width:${CARD_W}px;" class="absolute text-center font-en text-[11px] font-bold tracking-widest text-[#ff2a5f]">SEMIFINAL</div>
+        <div style="left:1120px; top:6px; width:${CARD_W}px;" class="absolute text-center font-en text-[11px] font-bold tracking-widest text-slate-400">QUARTERFINALS</div>
+        <div style="left:1345px; top:6px; width:${CARD_W}px;" class="absolute text-center font-en text-[11px] font-bold tracking-widest text-[#ff2a5f]/80">R1 / ROUND OF 16</div>
+      `;
+
+      // 全16試合カード生成
+      let cardsHtml = '';
+      MATCHES.forEach(m => {
+        const p1 = resolveSlot(m.p1);
+        const p2 = resolveSlot(m.p2);
+        const winSlot = state.results[m.id];
+
+        // ブロック・ラウンドごとのアクセントカラー設定
+        let accent = '#00e5ff';
+        let themeClass = 'left-theme';
+        if (m.side === 'right') {
+          accent = m.tier === 'prelim' ? '#ffd700' : '#ff2a5f';
+          themeClass = 'right-theme';
+        }
+        if (m.tier === 'final') {
+          accent = '#ffd700';
+          themeClass = 'final-theme';
+        }
+
+        const p1Editable = isDirectEditMode && m.p1.type === 'seed';
+        const p2Editable = isDirectEditMode && m.p2.type === 'seed';
+        const canProgress = !isDirectEditMode && p1.isReady && p2.isReady;
+
+        cardsHtml += `
+          <div style="position:absolute; left:${m.x}px; top:${m.y - 16}px; width:${CARD_W}px;">
+            <!-- 試合番号バッジ & ラウンド名 -->
+            <div class="flex items-center justify-between px-0.5 mb-0.5">
+              <span class="font-en font-bold text-[10px] px-1.5 rounded-sm text-slate-950 leading-tight" style="background:${accent};">
+                ${m.id}
+              </span>
+              <span class="font-en text-[9px] font-bold tracking-wider text-slate-400">
+                ${m.round}
+              </span>
+            </div>
+
+            <!-- 対戦カード本体 -->
+            <div class="fg-card shadow-lg shadow-black/50 ${isDirectEditMode && (p1Editable || p2Editable) ? 'edit-highlight' : ''}"
+                 style="border-left: 3px solid ${accent};">
+              <!-- スロット1 (上段) -->
+              <div onclick="handleSlotClick('${m.id}', 1)"
+                   class="fg-slot h-[32px] px-2 flex items-center justify-between border-b border-slate-800/90 ${themeClass}
+                          ${winSlot === 1 ? 'is-winner' : ''}
+                          ${winSlot === 2 ? 'is-loser' : ''}
+                          ${!canProgress && !p1Editable ? 'disabled-slot cursor-default' : ''}">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="font-en text-[10px] text-slate-500 font-bold shrink-0">${p1.subLabel}</span>
+                  <span class="text-xs font-bold truncate ${!p1.isReady ? 'text-slate-500 italic' : 'text-slate-100'}">
+                    ${escapeHtml(p1.name)}
+                  </span>
+                </div>
+                <div class="shrink-0 ml-1">
+                  ${p1Editable ? `<span class="text-[10px] text-[#00e5ff] font-bold">✎</span>` : ''}
+                  ${!isDirectEditMode && winSlot === 1 ? `<span class="font-en text-[10px] font-bold" style="color:${accent};">WIN</span>` : ''}
+                </div>
+              </div>
+
+              <!-- スロット2 (下段) -->
+              <div onclick="handleSlotClick('${m.id}', 2)"
+                   class="fg-slot h-[32px] px-2 flex items-center justify-between ${themeClass}
+                          ${winSlot === 2 ? 'is-winner' : ''}
+                          ${winSlot === 1 ? 'is-loser' : ''}
+                          ${!canProgress && !p2Editable ? 'disabled-slot cursor-default' : ''}">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="font-en text-[10px] text-slate-500 font-bold shrink-0">${p2.subLabel}</span>
+                  <span class="text-xs font-bold truncate ${!p2.isReady ? 'text-slate-500 italic' : 'text-slate-100'}">
+                    ${escapeHtml(p2.name)}
+                  </span>
+                </div>
+                <div class="shrink-0 ml-1">
+                  ${p2Editable ? `<span class="text-[10px] text-[#00e5ff] font-bold">✎</span>` : ''}
+                  ${!isDirectEditMode && winSlot === 2 ? `<span class="font-en text-[10px] font-bold" style="color:${accent};">WIN</span>` : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      // 中央 優勝者（CHAMPION）ショーケース枠
+      const m16 = matchMap['M16'];
+      const m16Win = state.results['M16'];
+      let champName = 'TBD';
+      let hasChamp = false;
+      if (m16Win) {
+        const champSlot = resolveSlot(m16Win === 1 ? m16.p1 : m16.p2);
+        if (champSlot.isReady) {
+          champName = champSlot.name;
+          hasChamp = true;
+        }
+      }
+
+      const championShowcase = `
+        <div style="position:absolute; left:665px; top:380px; width:230px;">
+          <div class="w-[2px] h-7 mx-auto ${hasChamp ? 'bg-[#ffd700] shadow-[0_0_8px_#ffd700]' : 'bg-slate-700'}"></div>
+          <div class="fg-card p-3.5 border ${hasChamp ? 'border-[#ffd700] shadow-[0_0_25px_rgba(255,215,0,0.22)]' : 'border-[#ffd700]/40'} bg-gradient-to-b from-[#ffd700]/20 via-[#131928] to-[#0d111b] text-center">
+            <div class="flex items-center justify-center gap-1.5 mb-1">
+              <svg class="w-4 h-4 text-[#ffd700]" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"/>
+              </svg>
+              <span class="font-orbitron text-[10px] font-black tracking-[0.22em] text-[#ffd700]">CHAMPION</span>
+            </div>
+            <div class="text-lg font-black tracking-wide truncate ${hasChamp ? 'text-white' : 'font-en text-slate-500'}">
+              ${escapeHtml(champName)}
+            </div>
+          </div>
+        </div>
+      `;
+
+      canvas.innerHTML = `
+        <svg width="1560" height="735" class="absolute inset-0 pointer-events-none">
+          ${svgHtml}
+        </svg>
+        ${columnHeaders}
+        ${cardsHtml}
+        ${championShowcase}
+      `;
+    }
+
+    // キーボードショートカット
+    document.addEventListener('keydown', (e) => {
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        if (e.key === 'Enter' && document.activeElement.id === 'inlineEditInput') {
+          saveInlineEdit();
+        } else if (e.key === 'Escape') {
+          closeInlineEdit();
+          closeBulkModal();
+        }
+        return;
+      }
+
+      if (e.key.toLowerCase() === 'h') {
+        toggleBroadcastMode();
+      } else if (e.key === 'Escape') {
+        closePwaHelpModal();
+      }
+    });
+
+    // 初期化
+    window.addEventListener('DOMContentLoaded', () => {
+      initPWA();
+      loadState();
+      renderBracket();
+    });
+  </script>
+</body>
+</html>
